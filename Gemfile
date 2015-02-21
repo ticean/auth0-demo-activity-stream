@@ -16,5 +16,6 @@ gem 'jbuilder', '~> 2.0'
 
 gem 'jwt',  '~> 1.0.0'
 gem 'hutch'
+gem 'redis'
 
 gem 'dotenv-rails', :groups => [:development, :test]
