@@ -1,0 +1,41 @@
+#!/usr/bin/env ruby
+# Loads the Hutch process in standalone worker mode.
+# We do this in a script so that we can configure entirely with ENV vars which
+# isn't possible with the Hutch command line flags.
+
+class HutchStarter
+
+  # Returns true if value matches 1, enabled, on, true, yes
+  def to_boolean(value)
+    value.to_s.match(/^(1|enabled?|on|true|yes)$/i) ? true : false
+  end
+
+  def amqp_tls_flag
+    to_boolean(ENV['HUTCH_AMQP_TLS']) ? "--mq-tls" : "--no-mq-tls"
+  end
+
+  def amqp_api_ssl_flag
+    to_boolean(ENV['HUTCH_AMQP_API_SSL']) ? "--mq-api-ssl" : "--no-mq-api-ssl"
+  end
+
+  def boot_command
+    "bundle exec hutch " \
+    "--namespace #{ENV['HUTCH_NAMESPACE']} " \
+    "--mq-host #{ENV['HUTCH_AMQP_HOST']} " \
+    "--mq-port #{ENV['HUTCH_AMQP_PORT']} " \
+    "--mq-exchange #{ENV['HUTCH_AMQP_EXCHANGE']} " \
+    "--mq-vhost #{ENV['HUTCH_AMQP_VHOST']} " \
+    "--mq-username #{ENV['HUTCH_AMQP_USERNAME']} " \
+    "--mq-password #{ENV['HUTCH_AMQP_PASSWORD']} " \
+    "--mq-api-host #{ENV['HUTCH_AMQP_API_HOST']} " \
+    "--mq-api-port #{ENV['HUTCH_AMQP_API_PORT']} " \
+    "#{amqp_tls_flag} " \
+    "#{amqp_api_ssl_flag} "
+  end
+
+  def run
+    exec boot_command
+  end
+end
+
+HutchStarter.new.run
